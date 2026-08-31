@@ -1,5 +1,5 @@
 EqualizationTest::test_equalizes_to_all_bins
-LinalgOpsCorrectnessTest::test_eig
+LinalgOpsCorrectnessTest::test_eigh
 MathDtypeTest::test_gammainc
 MathOpsCorrectnessTest::test_erfinv_operation_basic
 MathOpsCorrectnessTest::test_erfinv_operation_dtype
