@@ -412,11 +412,9 @@ def eigh(a):
     a_ov = get_ov_output(a)
     a_ov_type = a_ov.get_element_type()
 
-    # Constant-folding fast path: evaluating the Jacobi-based OpenVINO graph on
-    # constant inputs can fail inside the Loop body (for example at GatherND), so
-    # fall back to NumPy whenever the input is constant. The symbolic OpenVINO
-    # graph below is correct for runtime execution with Parameter inputs.
-    # See #29 and `lstsq()` (L2041-L2044) for a similar constant-folding workaround.
+    # Constant-folding fast path: Jacobi evaluation on constants may fail inside
+    # the Loop body, so use NumPy for constant inputs. The symbolic OpenVINO
+    # path is used for Parameter inputs. See #29 and `lstsq()` (L2041-L2044).
     a_node = a_ov.get_node()
     if a_node.get_type_name() == "Constant":
         a_np = np.asarray(a_node.data)
