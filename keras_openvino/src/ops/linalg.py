@@ -411,6 +411,26 @@ def eigh(a):
     a = convert_to_tensor(a)
     a_ov = get_ov_output(a)
     a_ov_type = a_ov.get_element_type()
+
+    # Constant-folding fast path: evaluating the Jacobi-based OpenVINO graph on
+    # constant inputs can fail inside the Loop body (for example at GatherND), so
+    # fall back to NumPy whenever the input is constant. The symbolic OpenVINO
+    # graph below is correct for runtime execution with Parameter inputs.
+    # See #29 and `lstsq()` (L2041-L2044) for a similar constant-folding workaround.
+    a_node = a_ov.get_node()
+    if a_node.get_type_name() == "Constant":
+        a_np = np.asarray(a_node.data)
+
+        w_np, v_np = np.linalg.eigh(a_np)
+
+        w = ov_opset.constant(w_np).output(0)
+        v = ov_opset.constant(v_np).output(0)
+
+        return (
+            OpenVINOKerasTensor(w),
+            OpenVINOKerasTensor(v),
+        )
+
     if not a_ov_type.is_real():
         a_ov = ov_opset.convert(a_ov, Type.f32).output(0)
         out_ov_type = Type.f32
