@@ -414,7 +414,7 @@ def eigh(a):
 
     # Constant-folding fast path: Jacobi evaluation on constants may fail inside
     # the Loop body, so use NumPy for constant inputs. The symbolic OpenVINO
-    # path is used for Parameter inputs. See #29 and `lstsq()` (L2041-L2044).
+    # path is used for Parameter inputs. See `lstsq()` (L2041-L2044).
     a_node = a_ov.get_node()
     if a_node.get_type_name() == "Constant":
         a_np = np.asarray(a_node.data)
